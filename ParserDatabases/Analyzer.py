@@ -1,3 +1,4 @@
+import bson
 class LogAnalyzer:
     def __init__(self, db_connector):
         self.db_connector = db_connector
@@ -37,23 +38,24 @@ class LogAnalyzer:
                 LIMIT {n}
             """
         elif db_type == "MongoDB":
-             query = [
-                    {
-                        '$group': {
-                            '_id': {
-                                'ip_address': '$ip_address',
-                                'user_agent': '$user_agent'
-                            },
-                            'count': { '$sum': 1 }
-                        }
-                    },
-                    {
-                        '$sort': { 'count': -1 }
-                    },
-                    {
-                        '$limit': n
+            query = [
+                {
+                    '$group': {
+                        '_id': {
+                            'ip_address': '$ip_address',
+                            'user_agent': '$user_agent'
+                        },
+                        'count': { '$sum': 1 }
                     }
-                ]
+                },
+                {
+                    '$sort': { 'count': -1 }
+                },
+                {
+                    '$limit': n
+                }
+            ]
+            query = bson.son.SON(query)  # Convert query to SON object
         elif db_type == "Redis":
             raise NotImplementedError("Redis database not supported for this query.")
         else:
